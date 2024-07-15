@@ -31,16 +31,24 @@ const MainContent = () => {
         </button>
       </header>
 
-      <section className="mt-16 bg-[#401040] rounded-lg p-8 flex flex-col md:flex-row items-center justify-between max-w-4xl w-full h-[300px]">
+      <section className="mt-[40px] bg-[#401040] rounded-lg p-8 flex flex-col md:flex-row items-center justify-between max-w-4xl  w-[1528px]  container">
         <div className="flex flex-col space-y-4 w-full md:w-1/2">
           <h2 className="text-xl">Find out which tech concepts or terms are in line with your business</h2>
           
           <div className="mb-4">
-            <label className="text-white">Upload CSV File</label>
+            <label className="text-white">Business Terms</label>
             <input type="file" className="w-full p-2 rounded-[50px] border-solid border-2 border-white-500 bg-[#401040] text-white focus:outline-none mt-2" />
             <small className="text-gray-300">CSV Data Format *</small>
           </div>
-          
+          <div className='items-center justify-center content-center'>OR</div>
+
+          <div className="mb-4">
+            <label className="text-white">Data Element</label>
+            <input type="file" className="w-full p-2 rounded-[50px] border-solid border-2 border-white-500 bg-[#401040] text-white focus:outline-none mt-2" />
+            <small className="text-gray-300">CSV Data Format *</small>
+          </div>
+
+
           <div className="mb-4">
             <select className="w-full p-2 rounded-[50px] bg-[#401040] border-solid border-2 border-white-500 text-white focus:outline-none">
               <option>Select Business Term</option>
@@ -53,8 +61,10 @@ const MainContent = () => {
 
         <div className="fixed left-1/2 w-0.5 h-[194px] ml-9 bg-gray-600"></div>
 
-        <div className="flex items-center justify-center w-full md:w-1/2 mt-8 md:mt-0">
-          <img src="/illustration.png" alt="Illustration" className="h-48" />
+        <div className="grid items-center justify-center w-full md:w-1/2 mt-8 md:mt-0">
+          <img src="/Group.svg" className="grid ml-20 mt-50 w-[346.69] h-[257.6px]" alt="vector"  />
+
+          <div className='w-[300px] mt-4  justify-center text-center'>Start by creating or uploading some business terms</div>
         </div>
       </section>
     </div>
