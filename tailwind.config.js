@@ -1,6 +1,9 @@
+const { nextui } = require("@nextui-org/react");
+
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,js}"],
+  content: ["./src/**/*.{html,js}", "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       backgroundImage: {
@@ -10,11 +13,12 @@ module.exports = {
         ttb: {
           violet: "#800080",
           glass: "#724F6E4D",
-         
+
         },
       },
     },
   },
-  plugins: [],
+  darkMode: "class",
+  plugins: [nextui()],
 }
 
