@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import EChartsReact from 'echarts-for-react';
 
 
-const SuggestionChart = () => {
+const SuggestionChart = ({ data }) => {
+
+    const x = data.map((element) => { return element.name })
+    const y = data.map((element) => { return element.score })
+    useEffect(() => { console.log(data) })
 
     // var myChart = echarts.init(document.getElementById('chart'));
 
@@ -12,14 +16,16 @@ const SuggestionChart = () => {
         },
         tooltip: {},
         xAxis: {
-            data: ['shirt', 'cardigan', 'chiffon', 'pants', 'heels', 'socks'],
+            // data: ['shirt', 'cardigan', 'chiffon', 'pants', 'heels', 'socks'],
+            data: x
         },
         yAxis: {},
         series: [
             {
                 name: 'Relevance',
                 type: 'bar',
-                data: [5, 20, 36, 10, 10, 20]
+                // data: [5, 20, 36, 10, 10, 20]
+                data: y
             }
         ]
     };

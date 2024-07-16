@@ -2,24 +2,37 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './Navbar';
 import Button from './components/Button';
 import { FaPaperclip, FaHeart } from 'react-icons/fa6';
-import { Spinner, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Spinner, Autocomplete, AutocompleteItem, select } from '@nextui-org/react';
 import SuggestionChart from './components/SuggestionChart';
 import { trackPromise, usePromiseTracker } from "react-promise-tracker";
 import axios from 'axios';
 
 const MainContent = () => {
   const [options, setOptions] = useState([]);
+  const [dataElements, setDataElements] = useState([]);
   const [showChart, setShowChart] = useState(false);
-  const [extractedBusinessTerms, setExtractedBusinessTerms] = useState([]);
+  const [resolvedSuggestions, setResolvedSuggestions] = useState([]);
   const [bottomText, setBottomText] = useState(<div className='w-[300px] mt-4 justify-center text-center'>Start by creating or uploading some business terms</div>);
   const demoRef = useRef(null);
   const { promiseInProgress } = usePromiseTracker();
 
   const [businessTerm, setBusinessTerm] = useState('');
 
+  const getDataElements = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/v1/data-elements")
+
+      let temp = []
+      response.data.forEach((element) => { temp.push(element) })
+      setDataElements(temp)
+
+    } catch (error) {
+      setBottomText(<div className='w-[300px] mt-4 justify-center text-center text-red-500'>Error Fetching Data</div>);
+    }
+  }
+
   const submitCSV = async (event) => {
     const file = event.target.files[0];
-    console.log(file)
     if (file) {
       const formData = new FormData();
       formData.append('csvfile', file);
@@ -32,17 +45,14 @@ const MainContent = () => {
         });
         if (response.status === 202) {
 
-          setShowChart(true);
+          const response2 = await axios.get("http://localhost:8000/api/v1/business-terms")
+          setOptions([])
+          let temp = []
+          response2.data.forEach((element) => {
+            temp.push(element)
+          })
+          setOptions(temp)
         }
-
-        const response2 = await axios.get("http://localhost:8000/api/v1/business-terms")
-        setOptions([])
-        let temp = []
-        response2.data.forEach((element) => {
-          temp.push(element)
-        })
-        console.log(response2.temp)
-        setOptions(temp)
       } catch (error) {
         setBottomText(<div className='w-[300px] mt-4 justify-center text-center text-red-500'>Error Uploading File</div>);
       }
@@ -62,21 +72,40 @@ const MainContent = () => {
     }
   }
 
+  const getSuggestions = async (termId) => {
+    console.log(termId)
+    try {
+      const response = await axios.get(`http://localhost:8000/api/v1/business-terms/${termId}/suggestions`);
+      if (response.status === 200) {
 
-  useEffect(() => {
+        let temp = []
 
-    const fetchedOptions = [
-      'Term 1',
-      'Term 2',
-      'Term 3',
-      'Term 4',
-    ];
-    setOptions(fetchedOptions);
-  }, []);
+        response.data.forEach((element) => {
+          dataElements.forEach((e) => {
+            if (element.uid === e.uid) {
+              e["score"] = element.score * 100
+              temp.push(e)
+            }
+          })
+        })
+        setResolvedSuggestions(temp)
+        setShowChart(true)
+
+      }
+    } catch (error) {
+      setBottomText(<div className='w-[300px] mt-4 justify-center text-center text-red-500'>Error Fetching Suggestions</div>);
+    }
+  }
 
   const scrollToDemo = () => {
     demoRef.current.scrollIntoView({ behavior: 'smooth' });
   }
+
+  useEffect(() => {
+    if (dataElements.length < 1) {
+      trackPromise(getDataElements())
+    }
+  }, [dataElements])
 
   return (
     <div className="bg-custom-bg bg-cover bg-center min-h-screen flex flex-col items-center text-white">
@@ -135,8 +164,15 @@ const MainContent = () => {
               </div>
 
               <div className="mb-4">
-                <select className="w-full py-3 px-4 h-[50px] rounded-[50px] bg-[#401040] border-solid border-2 border-white-500 text-white focus:outline-none">
-                  <option>Select Business Term</option>
+                <select onChange={(e) => {
+
+                  const terms = options.filter((option) => option.name === e.target.value)
+                  if (terms.length === 0) { setShowChart(false); return }
+                  trackPromise(
+                    getSuggestions(terms[0].uid)
+                  )
+                }} className="w-full py-3 px-4 h-[50px] rounded-[50px] bg-[#401040] border-solid border-2 border-white-500 text-white focus:outline-none">
+                  <option key={"placeholder"} value={""}>Select Business Term</option>
                   {options.map((option, index) => (
                     <option key={index} value={option.name}>{option.name}</option>
                   ))}
@@ -169,7 +205,7 @@ const MainContent = () => {
               </div>)}
 
             {showChart && !promiseInProgress && (
-              <SuggestionChart />
+              <SuggestionChart data={resolvedSuggestions} />
             )}
 
             {promiseInProgress && (<Spinner className='w-[400px]' />)}
