@@ -12,7 +12,11 @@ const SuggestionChart = ({ data }) => {
 
     const myChart = {
         title: {
-            text: 'Suggested Tech Terms',
+            text: 'Suggested Data Elements',
+            textStyle: {
+                color: '#fff',
+                fontSize: 20
+            }
         },
         tooltip: {},
         xAxis: {

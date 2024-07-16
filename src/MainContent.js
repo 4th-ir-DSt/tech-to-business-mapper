@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './Navbar';
 import Button from './components/Button';
 import { FaPaperclip, FaHeart } from 'react-icons/fa6';
-import { Spinner, Autocomplete, AutocompleteItem, select } from '@nextui-org/react';
+import { Spinner, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import SuggestionChart from './components/SuggestionChart';
 import { trackPromise, usePromiseTracker } from "react-promise-tracker";
+import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios';
 
 const MainContent = () => {
@@ -46,7 +47,6 @@ const MainContent = () => {
         if (response.status === 202) {
 
           const response2 = await axios.get("http://localhost:8000/api/v1/business-terms")
-          setOptions([])
           let temp = []
           response2.data.forEach((element) => {
             temp.push(element)
@@ -60,12 +60,27 @@ const MainContent = () => {
   };
 
   const createNewBusinessTerm = async () => {
+
+    const newTerm = {
+      "uid": parseInt(uuidv4().slice(0, 8), 16) & 0xFFFFFFFF,
+      "name": businessTerm,
+      "type": "",
+      "description": "",
+      "data_elements": []
+    }
+
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/business-terms/business-term', {
-        businessTerm,
+      const response = await axios.post('http://localhost:8000/api/v1/business-terms/business-term', newTerm, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
       });
       if (response.status === 201) {
-        setShowChart(true);
+
+        let temp = [...options]
+        temp.push(response.data)
+        setOptions(temp)
+        setBusinessTerm("")
       }
     } catch (error) {
       setBottomText(<div className='w-[300px] mt-4 justify-center text-center text-red-500'>Error Creating Business Term</div>);
@@ -133,7 +148,7 @@ const MainContent = () => {
               <div className="mb-4 flex flex-col">
                 <label className="text-white">Business Term</label>
                 <div className='flex flex-row w-full'>
-                  <input type="text" onChange={(e) => setBusinessTerm(e.target.value)} placeholder='Enter Business Term' className="w-[70%] px-4 py-3 rounded-l-[50px] border-solid border-2 border-white-500 bg-[#401040] text-white focus:outline-none mt-2" />
+                  <input type="text" value={businessTerm} onChange={(e) => setBusinessTerm(e.target.value)} placeholder='Enter Business Term' className="w-[70%] px-4 py-3 rounded-l-[50px] border-solid border-2 border-white-500 bg-[#401040] text-white focus:outline-none mt-2" />
 
 
                   <button onClick={() => {
