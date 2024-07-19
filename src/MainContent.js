@@ -10,6 +10,7 @@ import axios from 'axios';
 
 const MainContent = () => {
   const [options, setOptions] = useState([]);
+  const [animal, setAnimal] = useState([{ label: "dog", value: "dog" }, { label: "cat", value: "cat" }]);
   const [dataElements, setDataElements] = useState([]);
   const [showChart, setShowChart] = useState(false);
   const [resolvedSuggestions, setResolvedSuggestions] = useState([]);
@@ -154,11 +155,6 @@ const MainContent = () => {
                   <button onClick={() => {
 
                     trackPromise(
-                      // new Promise((resolve, reject) => {
-                      //   setTimeout(() => {
-                      //     resolve();
-                      //   }, 2000);
-                      // })
                       createNewBusinessTerm()
                     )
 
@@ -168,7 +164,7 @@ const MainContent = () => {
               </div>
               <div className='items-center justify-center text-center font-medium text-gray-400'>OR</div>
 
-              <div className="mb-4 flex flex-col">
+              <div className="flex flex-col">
                 <label className="bg-ttb-violet items-center justify-center flex py-2 rounded-[70px] h-[50px] font-medium cursor-pointer w-full p-2 gap-4 bg-[#401040] text-white mt-2" for="business_terms"> <FaPaperclip />Upload Business Terms CSV File</label>
                 <input id='business_terms' type="file" className="opacity-0 absolute z-[-1]"
 
@@ -179,33 +175,58 @@ const MainContent = () => {
               </div>
 
               <div className="mb-4">
-                <select onChange={(e) => {
+                {/* <select onChange={(e) => {
 
                   const terms = options.filter((option) => option.name === e.target.value)
                   if (terms.length === 0) { setShowChart(false); return }
                   trackPromise(
                     getSuggestions(terms[0].uid)
                   )
-                }} className="w-full py-3 px-4 h-[50px] rounded-[50px] bg-[#401040] border-solid border-2 border-white-500 text-white focus:outline-none">
+                }} className="w-full py-3 px-4 h-[50px] rounded-[50px] bg-[#401040] border-solid border-2 border-white-500 text-white">
                   <option key={"placeholder"} value={""}>Select Business Term</option>
                   {options.map((option, index) => (
                     <option key={index} value={option.name}>{option.name}</option>
                   ))}
-                </select>
-                {/* <Autocomplete variant="bordered"
+                </select> */}
+                <Autocomplete variant="bordered"
+
+                  onSelectionChange={(key) => {
+                    const terms = options.filter((option) => option.name === key)
+                    if (terms.length === 0) { setShowChart(false); return }
+                    trackPromise(
+                      getSuggestions(terms[0].uid)
+                    )
+                  }}
+
+                  defaultItems={options}
+                  radius='full'
                   label="Select Business Term"
+                  labelPlacement='outside'
                   className="w-full bg-[#401040] text-white"
+                  listboxProps={{
+                    itemClasses: {
+                      base: "text-white",
+                    },
+                  }}
+                  inputProps={{
+                    classNames: {
+                      inputWrapper: "h-[50px] group-data-[focus=true]:border-white-500 data-[hover=true]:border-white-500",
+                      label: "text-white text-md data-[focus=true]:text-white group-data-[filled-within=true]:text-white",
+                      input: "text-md"
+                    }
+                  }}
                   classNames={{
                     popoverContent: "bg-[#401040]",
                     listbox: "text-white",
+                    selectorButton: "text-white",
                   }}
                 >
-                  {options.map((animal) => (
-                    <AutocompleteItem key={animal.value} value={animal.value}>
-                      {animal.label}
+                  {options.map((a) => (
+                    <AutocompleteItem key={a.name} value={a.uid}>
+                      {a.name}
                     </AutocompleteItem>
                   ))}
-                </Autocomplete> */}
+                </Autocomplete>
               </div>
             </div>
 
